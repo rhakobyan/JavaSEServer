@@ -3,30 +3,44 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 import java.io.*;
+import java.util.stream.Collectors;
 
-    public class XHandler implements HttpHandler {
+public class XHandler implements HttpHandler {
+        HttpExchange exchange;
         @Override
-        public void handle(HttpExchange t) throws IOException {
-            Headers h = t.getResponseHeaders();
-            String line;
-            String response = "";
-            try{
-                File newFile = new File("view/index.html");
-                System.out.println("File name " + newFile.getName());
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(newFile)));
-                while ((line = bufferedReader.readLine()) != null) {
-                    response += line;
-                }
-                bufferedReader.close();
-            }  catch(IOException e){
-                e.printStackTrace();
+        public void handle(HttpExchange t) throws IOException{
+            exchange = t;
+            String requestMethod = exchange.getRequestMethod();
+            System.out.println(requestMethod);
+            if (requestMethod.equals("GET")){
+                get();
             }
-            h.add("Content-Type", "text/html");
-            t.sendResponseHeaders(200, response.length());
-            OutputStream os = t.getResponseBody();
-            os.write(response.getBytes());
-            os.close();
-            System.out.println("Handling");
+            else if(requestMethod.equals("POST")){
+                post();
+            }
+
         }
+
+        private void get() throws IOException{
+            Headers h = exchange.getResponseHeaders();
+
+            Router.route(exchange.getRequestURI().getPath());
+            h.add("Content-Type", "text/html");
+            exchange.sendResponseHeaders(Router.getCode(), Router.getResponse().length());
+            OutputStream os = exchange.getResponseBody();
+            os.write(Router.getResponse().getBytes());
+            os.close();
+        }
+
+        private void post(){
+            String body = new BufferedReader(
+                    new InputStreamReader(
+                            exchange.getRequestBody()
+                    )
+            ).lines().collect(Collectors.joining("\n"));
+
+            System.out.println(body);
+        }
+
     }
 
