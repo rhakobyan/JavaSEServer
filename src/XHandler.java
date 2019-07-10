@@ -25,6 +25,8 @@ public class XHandler implements HttpHandler {
             Headers h = exchange.getResponseHeaders();
 
             Router.route(exchange.getRequestURI().getPath());
+            String query = exchange.getRequestURI().getQuery();
+            System.out.println(query);
             h.add("Content-Type", "text/html");
             exchange.sendResponseHeaders(Router.getCode(), Router.getResponse().length());
             OutputStream os = exchange.getResponseBody();
