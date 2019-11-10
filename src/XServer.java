@@ -10,7 +10,7 @@ public class XServer {
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
         server.createContext("/", new XHandler());
         server.setExecutor(null); // creates a default executor
-        server.start();
+        server.start();	//starts the server
         System.out.println("Server up and running");
     }
 
